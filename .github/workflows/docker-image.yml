@@ -7,9 +7,9 @@ on: push
 # Below environment variables available to all jobs and steps in this workflow
 env:
     REGISTRY_NAME: sai9356
-    # CLUSTER_NAME: cluster-name
-    # CLUSTER_RESOURCE_GROUP: cluster-resource-group
-    # NAMESPACE: default
+    CLUSTER_NAME: my-aks-cluster
+    CLUSTER_RESOURCE_GROUP: dinkar-rg
+    NAMESPACE: default
 
 jobs:
   build:
@@ -39,3 +39,40 @@ jobs:
         echo '<-----------------------Docker Publish started----------------------->'
         docker push ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
         echo '<------------------------Docker Publish Ended------------------------>'
+    
+    
+    # Set the target Azure Kubernetes Service (AKS) cluster.
+    - name: Setting AKS target 
+      uses: azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{ env.CLUSTER_NAME }}
+        resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+    
+    # Create namespace if doesn't exist
+    - name: AKS namespace creating
+      run: |
+        kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
+
+    # Create imagepullsecret for Azure Container registry (ACR)
+    - name: Imagepullsecret for ACR
+      uses: azure/k8s-create-secret@v1
+      with:
+        container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+        container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        secret-name: ${{ env.REGISTRY_NAME }}-registry-connection
+        namespace: ${{ env.NAMESPACE }}          
+        
+    # Deploy app to AKS
+    - name: Deploying on AKS
+      uses: azure/k8s-deploy@v1
+      with:
+        manifests: |
+          kubernetes/deploy.yml
+          Kubernetes/service.yml
+        images: |
+          ${{ env.REGISTRY_NAME }}.azurecr.io/myimage:${{ github.sha }}
+        imagepullsecrets: |
+          ${{ env.REGISTRY_NAME }}-registry-connection
+        namespace: ${{ env.NAMESPACE }}     
