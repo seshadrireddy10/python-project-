@@ -1,13 +1,13 @@
 name: Docker Build
 
-on: [push]
+on: workflow_call
 
 # Environment variables available to all jobs and steps in this workflow
 env:
   REGISTRY_NAME: gdinkar
-#  CLUSTER_NAME: my-cluster-name
-#  CLUSTER_RESOURCE_GROUP: my-cluster-resource-group
-#  NAMESPACE: default
+  CLUSTER_NAME: myaks
+  CLUSTER_RESOURCE_GROUP: github_actions
+  NAMESPACE: default
   
 jobs:
   build:
@@ -27,3 +27,34 @@ jobs:
     - run: |
         docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
         docker push ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
+    # Set the target Azure Kubernetes Service (AKS) cluster. 
+    - uses: azure/aks-set-context@v1
+      with:
+        creds: '${{ secrets.AZURE_CREDENTIALS }}'
+        cluster-name: ${{ env.CLUSTER_NAME }}
+        resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+    
+    # Create namespace if doesn't exist
+    - run: |
+        kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
+    
+    # Create imagepullsecret for Azure Container registry (ACR)
+    - uses: azure/k8s-create-secret@v1
+      with:
+        container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+        container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        secret-name: ${{ env.REGISTRY_NAME }}-registry-connection
+        namespace: ${{ env.NAMESPACE }}
+    
+    # Deploy app to AKS
+    - uses: azure/k8s-deploy@v1
+      with:
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          ${{ env.REGISTRY_NAME }}.azurecr.io/myimage:${{ github.sha }}
+        imagepullsecrets: |
+          ${{ env.REGISTRY_NAME }}-registry-connection
+        namespace: ${{ env.NAMESPACE }}        
