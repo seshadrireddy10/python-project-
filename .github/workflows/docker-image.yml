@@ -16,11 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-    - uses: actions/checkout@master
+      uses: actions/checkout@master
 
       # Connecting to Azure Container registry (ACR)
     - name: ACR Login
-    - uses: azure/docker-login@v1
+      uses: azure/docker-login@v1
       with:
         login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
         username: ${{ secrets.REGISTRY_USERNAME }} 
@@ -28,14 +28,14 @@ jobs:
     
     # Docker container build 
     - name: Docker Build
-    - run: |
+      run: |
         echo '<-----------------------Docker build started----------------------->' 
         docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
         echo '<------------------------Docker build Ended------------------------>'
     
     # Docker Container Push to ACR
     - name: Docker Push
-    - run: |
+      run: |
         echo '<-----------------------Docker Publish started----------------------->'
         docker push ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
         echo '<------------------------Docker Publish Ended------------------------>'
