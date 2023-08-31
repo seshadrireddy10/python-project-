@@ -29,8 +29,9 @@ jobs:
     # Docker container build 
     - name: Docker Build
       run: |
-        echo '<-----------------------Docker build started----------------------->' 
-        docker build /Docker -t ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
+        echo '<-----------------------Docker build started----------------------->'
+        cd /Docker
+        docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
         echo '<------------------------Docker build Ended------------------------>'
     
     # Docker Container Push to ACR
