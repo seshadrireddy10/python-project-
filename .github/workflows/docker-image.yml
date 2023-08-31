@@ -15,27 +15,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-      - uses: actions/checkout@master
+    - name: Checkout code
+    - uses: actions/checkout@master
 
       # Connecting to Azure Container registry (ACR)
-      - name: ACR Login
-      - uses: azure/docker-login@v1
-       with:
-         login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
-         username: ${{ secrets.REGISTRY_USERNAME }} 
-         password: ${{ secrets.REGISTRY_PASSWORD }}
+    - name: ACR Login
+    - uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }} 
+        password: ${{ secrets.REGISTRY_PASSWORD }}
     
     # Docker container build 
-      - name: Docker Build
-      - run: |
-          echo '<-----------------------Docker build started----------------------->' 
-          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
-          echo '<------------------------Docker build Ended------------------------>'
+    - name: Docker Build
+    - run: |
+        echo '<-----------------------Docker build started----------------------->' 
+        docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
+        echo '<------------------------Docker build Ended------------------------>'
     
     # Docker Container Push to ACR
-      - name: Docker Push
-      - run: |
-         echo '<-----------------------Docker Publish started----------------------->'
-         docker push ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
-         echo '<------------------------Docker Publish Ended------------------------>'
+    - name: Docker Push
+    - run: |
+        echo '<-----------------------Docker Publish started----------------------->'
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/mytestimage:${{ github.sha }}
+        echo '<------------------------Docker Publish Ended------------------------>'
