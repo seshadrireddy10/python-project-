@@ -80,9 +80,31 @@ jobs:
           # Azure credentials i.e. output of `az ad sp create-for-rbac --sdk-auth`
           creds: '${{secrets.AZURE_CREDENTIALS}}'
           # Resource Group Name
-          resource-group: sai-arch
+          resource-group: ${{ env.RESOURCE_GROUP }}
           # AKS Cluster Name
-          cluster-name: my_aks
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          
+
+      # Use kubelogin to configure your kubeconfig for Azure auth
+      - name: Set up kubelogin for non-interactive login
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: 'v0.0.25'
+
+      # Create K8s secrets to pull images
+      - name: Create secret in Kubernetes cluster
+        uses: Azure/k8s-create-secret@v1.1
+        with:
+          # Container registry url
+          container-registry-url: https://${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}
+          # Container registry username
+          container-registry-username: '${{ secrets.REGISTRY_USERNAME }}'
+          # Container registry password
+          container-registry-password:  '${{ secrets.REGISTRY_PASSWORD }}'
+          # Type of Kubernetes secret. For example, docker-registry or generic
+          secret-type: acr-registry
+          # Name of the secret. You can use this secret name in the Kubernetes YAML configuration file.
+          secret-name: acr-image-pull-secret
 
 
 
