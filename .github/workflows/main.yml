@@ -9,7 +9,7 @@
 
 name: Python Flask on Kubernetes
 
-on: push
+on: workflow_dispatch
 
 # Below environment variables available to all jobs and steps in this workflow
 env:
