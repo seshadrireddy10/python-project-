@@ -1,9 +1,5 @@
 name: main
-"on":
-    push:
-        branches:
-            - feature
-    workflow_dispatch: {}
+on: workflow_dispatch
 env:
     ACR_RESOURCE_GROUP: sai-arch
     AZURE_CONTAINER_REGISTRY: myacr108
