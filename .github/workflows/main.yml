@@ -9,7 +9,7 @@
 
 name: Python Flask on Kubernetes
 
-on: push
+on: workflow_dispatch
 
 # Below environment variables available to all jobs and steps in this workflow
 env:
@@ -95,17 +95,14 @@ jobs:
       - name: Create secret in Kubernetes cluster
         uses: Azure/k8s-create-secret@v1.1
         with:
-          # Container registry url
+          # Container registry URL
           container-registry-url: https://${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}
           # Container registry username
           container-registry-username: '${{ secrets.REGISTRY_USERNAME }}'
           # Container registry password
           container-registry-password:  '${{ secrets.REGISTRY_PASSWORD }}'
           # Type of Kubernetes secret. For example, docker-registry or generic
-          secret-type: acr-registry
+          secret-type: docker-registry
           # Name of the secret. You can use this secret name in the Kubernetes YAML configuration file.
           secret-name: acr-image-pull-secret
 
-
-
- 
