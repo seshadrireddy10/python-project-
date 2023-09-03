@@ -16,7 +16,7 @@ env:
     REGISTRY_NAME: myacr108
     CONTAINER_NAME: my-container
     RESOURCE_GROUP: sai-arch
-    CLUSTER_NAME: my-aks
+    CLUSTER_NAME: my_aks
     CLUSTER_RESOURCE_GROUP: sai-arch
     NAMESPACE: default
 
