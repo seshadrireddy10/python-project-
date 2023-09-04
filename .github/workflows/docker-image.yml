@@ -52,7 +52,7 @@ jobs:
     - name: Docker Push
       run: |
         echo '<-----------------------Docker Publish started----------------------->'
-        docker tag mytestimage dkregistry.jfrog.io/docker:latest
+        docker tag ${{github.sha}} dkregistry.jfrog.io/docker:latest
         docker push dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }}
         echo '<------------------------Docker Publish Ended------------------------>'
 
