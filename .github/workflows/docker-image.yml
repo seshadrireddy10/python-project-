@@ -10,8 +10,8 @@ on: push
 env:
   ARTIFACTORY_URL: https://dkregistry.jfrog.io/artifactory/docker/
   ARTIFACTORY_NAME: dkregistry
-  ARTIFACTORY_USERNAME: saidinkargedela97@gmail.com
-  ARTIFACTORY_PASSWORD: cmVmdGtuOjAxOjE3MjUzNTk0ODU6OUg3UlNJbVFEcVhQS2JYMXVvOHlZZHphYzhu
+  # ARTIFACTORY_USERNAME: saidinkargedela97@gmail.com
+  # ARTIFACTORY_PASSWORD: cmVmdGtuOjAxOjE3MjUzNTk0ODU6OUg3UlNJbVFEcVhQS2JYMXVvOHlZZHphYzhu
   CONTAINER_NAME: myimage
     # CLUSTER_NAME: my-aks-cluster
     # CLUSTER_RESOURCE_GROUP: dinkar-rg
@@ -24,13 +24,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@master
 
-      # Connecting to Azure Container registry (ACR)
-    # - name: ACR Login
-    #   uses: docker/login-action@v1
-    #   with:
-    #     registry: ${{ env.ARTIFACTORY_NAME }}.jfrog.io
-    #     username: ${{ secrets.JFROG_USERNAME }} 
-    #     password: ${{ secrets.JFROG_PASSWORD }}d
+      # Connecting to Jfrog Artifactory
+    - name: Jfrog Artifactory Login
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ env.ARTIFACTORY_NAME }}.jfrog.io
+        username: ${{ secrets.ARTIFACTORY_USERNAME }} 
+        password: ${{ secrets.ARTIFACTORY_PASSWORD }}
     
     # Docker container build 
     - name: Docker Build
@@ -40,12 +40,12 @@ jobs:
         
         echo '<------------------------Docker build Ended------------------------>'
 
-    # Jfrog Artifactory Login   
-    - name: Docker Login
-      run: |
-        echo '<--------------- Docker Login --------------->'
-        docker login ${{ env.ARTIFACTORY_NAME }}.jfrog.io -u ${{ secrets.ARTIFACTORY_USERNAME }} -p ${{ secrets.ARTIFACTORY_PASSWORD }}
-        echo '<--------------- Docker Login Ended --------------->'
+    # # Jfrog Artifactory Login   
+    # - name: Docker Login
+    #   run: |
+    #     echo '<--------------- Docker Login --------------->'
+    #     docker login ${{ env.ARTIFACTORY_NAME }}.jfrog.io -u ${{ secrets.ARTIFACTORY_USERNAME }} -p ${{ secrets.ARTIFACTORY_PASSWORD }}
+    #     echo '<--------------- Docker Login Ended --------------->'
      
     # Docker Container Push to ACR
     - name: Docker Push
