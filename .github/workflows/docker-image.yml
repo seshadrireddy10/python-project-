@@ -1,6 +1,7 @@
 #this pipeline is for python API on Azure Kubernetes Services
 #docker build . -t ${{ env.ARTIFACTORY_NAME }}.jfrog.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
 #docker push ${{ env.ARTIFACTORY_NAME }}.jfrog.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
+#docker tag myimage dkregistry.jfrog.io/docker/${{env.CONTAINER_NAME}}:${{ github.sha }}
 
 name: Build CI
 
@@ -36,7 +37,7 @@ jobs:
     - name: Docker Build
       run: |
         echo '<-----------------------Docker build started----------------------->'
-        docker build . -t ${{ env.ARTIFACTORY_NAME }}.jfrog.io/docker/${{env.CONTAINER_NAME}}:${{ github.sha }}
+        docker build . -t ${{ env.ARTIFACTORY_NAME }}.jfrog.io/docker/mytestimage:${{ github.sha }}
         
         echo '<------------------------Docker build Ended------------------------>'
 
@@ -51,7 +52,6 @@ jobs:
     - name: Docker Push
       run: |
         echo '<-----------------------Docker Publish started----------------------->'
-        docker tag myimage dkregistry.jfrog.io/docker/${{env.CONTAINER_NAME}}:${{ github.sha }}
-        docker push dkregistry.jfrog.io/docker/${{env.CONTAINER_NAME}}:${{ github.sha }}
+        docker push dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }}
         echo '<------------------------Docker Publish Ended------------------------>'
 
