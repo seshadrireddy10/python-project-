@@ -9,7 +9,7 @@
 
 name: Python Flask on Kubernetes
 
-on: push
+on: workflow_dispatch
 
 # Below environment variables available to all jobs and steps in this workflow
 env:
@@ -46,11 +46,6 @@ jobs:
         echo '<-----------------------Docker build started----------------------->'
         docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
         echo '<------------------------Docker build Ended------------------------>'
-
-    - name: tag docker image
-      run: |
-        echo '<--------------------------Docker Tagging-------------------------->'
-        docker tag ${{env.CONTAINER_NAME}}:'${{github.sha}}' ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:'${{github.sha}}'
     
     # Docker Container Push to ACR
     - name: Docker Push
