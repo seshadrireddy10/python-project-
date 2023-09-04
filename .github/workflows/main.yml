@@ -9,7 +9,7 @@
 
 name: Python Flask on Kubernetes
 
-on: workflow_dispatch
+on: push
 
 # Below environment variables available to all jobs and steps in this workflow
 env:
@@ -51,6 +51,7 @@ jobs:
     - name: Docker Push
       run: |
         echo '<-----------------------Docker Publish started----------------------->'
+        docker tag ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:${{ github.sha }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:latest
         docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
         echo '<------------------------Docker Publish Ended------------------------>'
   
@@ -89,7 +90,7 @@ jobs:
         uses: Azure/k8s-create-secret@v1.1
         with:
           # Container registry URL
-          container-registry-url: https://${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}
+          container-registry-url: https://${{env.REGISTRY_NAME}}.azurecr.io/${{env.CONTAINER_NAME}}
           # Container registry username
           container-registry-username: '${{ secrets.REGISTRY_USERNAME }}'
           # Container registry password

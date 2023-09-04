@@ -41,18 +41,17 @@ jobs:
         
         echo '<------------------------Docker build Ended------------------------>'
 
-    # # Jfrog Artifactory Login   
-    # - name: Docker Login
-    #   run: |
-    #     echo '<--------------- Docker Login --------------->'
-    #     docker login ${{ env.ARTIFACTORY_NAME }}.jfrog.io -u ${{ secrets.ARTIFACTORY_USERNAME }} -p ${{ secrets.ARTIFACTORY_PASSWORD }}
-    #     echo '<--------------- Docker Login Ended --------------->'
+    # Docker Tag   
+    - name: Docker Tag
+      run: |
+        echo '<--------------- Docker Image Retagging --------------->'
+        docker tag dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }} dkregistry.jfrog.io/docker/mytestimage:1.0
      
     # Docker Container Push to ACR
     - name: Docker Push
       run: |
         echo '<-----------------------Docker Publish started----------------------->'
-        docker tag dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }} dkregistry.jfrog.io/docker/mytestimage:latest
+        
         docker push dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }}
         echo '<------------------------Docker Publish Ended------------------------>'
 
