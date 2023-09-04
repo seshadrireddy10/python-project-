@@ -2,7 +2,7 @@
 FROM python:3-alpine3.15
 
 LABEL BuildBy="Dinkar Gedela"
-LABEL BuilderEmail="dgedela@archinsurance.com"
+LABEL BuilderEmail="dinkarsai03@gmail.com"
 
 #Set the working directory in the container
 WORKDIR /app

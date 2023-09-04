@@ -8,9 +8,9 @@ on: workflow_dispatch
 env:
     REGISTRY_NAME: sai9356
     CONTAINER_NAME: test-image
-    CLUSTER_NAME: my-aks-cluster
-    CLUSTER_RESOURCE_GROUP: dinkar-rg
-    NAMESPACE: default
+    # CLUSTER_NAME: my-aks-cluster
+    # CLUSTER_RESOURCE_GROUP: dinkar-rg
+    # NAMESPACE: default
 
 jobs:
   build:
@@ -19,13 +19,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@master
 
-      # Connecting to Azure Container registry (ACR)
-    - name: ACR Login
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
-        username: ${{ secrets.REGISTRY_USERNAME }} 
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+    #   # Connecting to Azure Container registry (ACR)
+    # - name: ACR Login
+    #   uses: azure/docker-login@v1
+    #   with:
+    #     login-server: ${{ env.REGISTRY_NAME }}.jfrog.io
+    #     username: ${{ secrets.REGISTRY_USERNAME }} 
+    #     password: ${{ secrets.REGISTRY_PASSWORD }}
     
     # Docker container build 
     - name: Docker Build
@@ -34,10 +34,11 @@ jobs:
         docker build . -t ${{ env.REGISTRY_NAME }}.jfrog.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
         echo '<------------------------Docker build Ended------------------------>'
 
+    # Jfrog Artifactory Login   
     - name: Docker Login
       run: |
         echo '<--------------- Docker Login --------------->'
-        docker login valaxy01.jfrog.io -u ${{ secrets.ARTIFACTORY_USERNAME }} -p ${{ secrets.ARTIFACTORY_PASSWORD }}
+        docker login ${{ env.REGISTRY_NAME }}.jfrog.io -u ${{ secrets.ARTIFACTORY_USERNAME }} -p ${{ secrets.ARTIFACTORY_PASSWORD }}
         echo '<--------------- Docker Login Ended --------------->'
      
     # Docker Container Push to ACR
@@ -46,4 +47,4 @@ jobs:
         echo '<-----------------------Docker Publish started----------------------->'
         docker push ${{ env.REGISTRY_NAME }}.jfrog.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
         echo '<------------------------Docker Publish Ended------------------------>'
-        
+
