@@ -43,8 +43,8 @@ Within the repository where your workflow is, click on Settings > Secrets > Acti
 
 ```sh
 {
-  "clientId": "7b367077-d2ed-41b4-99f1-8b0f5b0e9ca7",
-  "clientSecret": "usNonfiGXJXvwlC9FyUzcAzn8OIgHe2JLCuaiEemH+Y=",
-  "subscriptionId": "e94972e2-c0eb-497c-8f74-f98b46621f80",
-  "tenantId": "9b4947ce-08e8-47b9-9c2d-c39b90bfaa7e"
+  "clientId": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "clientSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "subscriptionId": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "tenantId": "xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 }```
