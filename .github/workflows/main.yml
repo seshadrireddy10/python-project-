@@ -19,6 +19,9 @@ env:
     CLUSTER_NAME: my_aks
     CLUSTER_RESOURCE_GROUP: sai-arch
     NAMESPACE: default
+    DEPLOYMENT_MANIFEST_PATH: |
+        manifests/deployment.yaml
+        manifests/service.yaml
 
 jobs:
   build:
@@ -101,11 +104,9 @@ jobs:
         uses: Azure/k8s-deploy@v1
         with:        
           # Path to the manifest files which will be used for deployment.
-          manifests: |
-            Kubernetes/deployment.yml
-            Kubernetes/service.yml
+          manifests: ${{ env.DEPLOYMENT_MANIFEST_PATH }}
           # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
-          images: '${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}'
+          images: ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
           # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
           imagepullsecrets: acr-image-pull-secret
           # deploy/promote/reject
