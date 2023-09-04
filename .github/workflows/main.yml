@@ -102,7 +102,7 @@ jobs:
         with:        
           # Path to the manifest files which will be used for deployment.
           manifests: |
-            Kubernetes/deploy.yml
+            Kubernetes/deployment.yml
             Kubernetes/service.yml
           # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
           images: '${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}'
