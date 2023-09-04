@@ -99,9 +99,7 @@ jobs:
       # Deploy to k8s cluster
       - name: Deploy to Kubernetes cluster
         uses: Azure/k8s-deploy@v1
-        with:    
-          # Choose the target Kubernetes namespace. If the namespace is not provided, the commands will run in the default namespace.
-          namespace: '${{ env.NAMESPACE }}'    
+        with:        
           # Path to the manifest files which will be used for deployment.
           manifests: |
             Kubernetes/deploy.yml
@@ -112,3 +110,4 @@ jobs:
           imagepullsecrets: acr-image-pull-secret
           # deploy/promote/reject
           action: deploy
+         
