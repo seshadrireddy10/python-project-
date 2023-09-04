@@ -102,14 +102,18 @@ jobs:
 
       # Deploy to k8s cluster
       - name: Deploy to Kubernetes cluster
-        uses: Azure/k8s-deploy@v1
-        with:        
-          # Path to the manifest files which will be used for deployment.
-          manifests: ${{ env.DEPLOYMENT_MANIFEST_PATH }}
-          # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
-          images: ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
-          # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
-          imagepullsecrets: acr-image-pull-secret
+        uses: Azure/k8s-deploy@v4
+        with: 
           # deploy/promote/reject
-          action: deploy
+          action: deploy       
+          # Path to the manifest files which will be used for deployment.
+          manifests: |
+              ${{ env.DEPLOYMENT_MANIFEST_PATH }}
+          # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+          # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
+          imagepullsecrets: |
+            acr-image-pull-secret
+          
          
