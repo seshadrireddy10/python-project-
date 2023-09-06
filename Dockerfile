@@ -6,10 +6,9 @@ LABEL BuilderEmail="dinkarsai03@gmail.com"
 
 #Set the working directory in the container
 WORKDIR /app
-COPY . /app
 
-#Copy the requirements file into the container
-COPY requirements.txt .
+#Copy the all files like requirements file into the container
+COPY . /app
 
 #install the dependencies from requirements.txt
 RUN pip install -r requirements.txt

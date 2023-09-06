@@ -52,7 +52,6 @@ jobs:
     - name: Docker Push
       run: |
         echo '<-----------------------Docker Publish started----------------------->'
-        docker tag ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:${{ github.sha }} ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:latest
         docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
         echo '<------------------------Docker Publish Ended------------------------>'
   

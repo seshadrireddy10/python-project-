@@ -3,7 +3,7 @@
 
 name: Build CI
 
-on:  push
+on:  workflow_dispatch
 
 # Below environment variables available to all jobs and steps in this workflow
 env:
@@ -40,13 +40,7 @@ jobs:
         echo '<-----------------------Docker build started----------------------->'
         docker build . -t dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }}        
         echo '<------------------------Docker build Ended------------------------>'
-
-    # Docker Tag   
-    - name: Docker Tag
-      run: |
-        echo '<--------------- Docker Image Retagging --------------->'
-        docker tag dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }} dkregistry.jfrog.io/docker/mytestimage:1.0
-     
+   
     # Docker Container Push to ACR
     - name: Docker Push
       run: |
