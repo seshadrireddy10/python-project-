@@ -12,7 +12,7 @@ jobs:
 
     strategy:
         matrix:
-            python-version: [3.15]
+            python-version: [3.x]
 
     steps:
     #Code checkout and python setup
@@ -44,8 +44,8 @@ jobs:
     #   run: |
     #     pylint $(git ls-files 'app.py')
 
-    # #python code test with pytest 
-    # - name: Test with pytest
-    #   run: |
-    #     export PYTHONPATH=src
-    #     pytest
+    #python code test with pytest 
+    - name: Test with pytest
+      run: |
+        export PYTHONPATH=src
+        pytest
