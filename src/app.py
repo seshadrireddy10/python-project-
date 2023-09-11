@@ -9,7 +9,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    '''This is a module-level docstring that describes the purpose of the app.py module.'''
     return "Hello Arch world!"
 
 
