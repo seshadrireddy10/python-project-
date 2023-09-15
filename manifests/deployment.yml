@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: python-app
-        image: myacr108.azurecr.io/my-container
+        image: myacr.azurecr.io/my-container
         imagePullPolicy: Always
         resources:
           limits:
