@@ -1,6 +1,7 @@
 name: Python application Testing
 
-on: push
+on: 
+  workflow_dispatch
 
 permissions:
   contents: read
