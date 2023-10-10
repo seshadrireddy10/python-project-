@@ -6,7 +6,7 @@ The quickest way and easiest way to create this Service Principal is to use Azur
 az ad sp create-for-rbac \
     --name "myAzureServiceGitHubConnection" \
     --role contributor \
-    --scopes /subscriptions/e94972e2-c0eb-497c-8f74-f98b46621f80/resourceGroups/sai-arch \
+    --scopes /subscriptions/{subscription-ID}/resourceGroups/{RG-name} \
     --sdk-auth 
 ```
 
