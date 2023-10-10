@@ -1,0 +1,121 @@
+#this pipeline is for python API on Azure Kubernetes Services
+
+# Set the following environment variables (or replace the values below):
+#      - AZURE_CONTAINER_REGISTRY (name of your container registry / ACR)
+#      - RESOURCE_GROUP (where your cluster is deployed)
+#      - CLUSTER_NAME (name of your AKS cluster)
+#      - CONTAINER_NAME (name of the container image you would like to push up to your ACR)
+
+
+name: Python Flask on Kubernetes
+
+on: 
+  workflow_dispatch:
+
+# Below environment variables available to all jobs and steps in this workflow
+env:
+    REGISTRY_NAME: myacr108
+    CONTAINER_NAME: my-container
+    RESOURCE_GROUP: sai-arch
+    CLUSTER_NAME: my_aks
+    CLUSTER_RESOURCE_GROUP: sai-arch
+    NAMESPACE: default
+    DEPLOYMENT_MANIFEST_PATH: |
+        manifests/deployment.yaml
+        manifests/service.yaml
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+
+      # Connecting to Azure Container registry (ACR)
+    - name: ACR Login
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }} 
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+    # Docker container build 
+    - name: Docker Build
+      run: |
+        echo '<-----------------------Docker build started----------------------->'
+        docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
+        echo '<------------------------Docker build Ended------------------------>'
+    
+    # Docker Container Push to ACR
+    - name: Docker Push
+      run: |
+        echo '<-----------------------Docker Publish started----------------------->'
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{env.CONTAINER_NAME}}:${{ github.sha }}
+        echo '<------------------------Docker Publish Ended------------------------>'
+  
+  Deploy:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+
+    runs-on: ubuntu-latest
+
+    # Delpoy job won't run until build job is completed
+    needs: [build] 
+
+    steps:
+      # Checks out the repository this file is in
+      - uses: actions/checkout@v3
+      
+      - name: Azure Kubernetes set context
+        uses: Azure/aks-set-context@v1
+        with:
+          # Azure credentials i.e. output of 
+          creds: '${{secrets.AZURE_CREDENTIALS}}'
+          # Resource Group Name
+          resource-group: ${{ env.RESOURCE_GROUP }}
+          # AKS Cluster Name
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          
+
+      # Use kubelogin to configure your kubeconfig for Azure auth
+      - name: Set up kubelogin for non-interactive login
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: 'v0.0.25'
+
+      # Create K8s secrets to pull images
+      - name: Create secret in Kubernetes cluster
+        uses: Azure/k8s-create-secret@v1.1
+        with:
+          # Container registry URL
+          container-registry-url: https://${{env.REGISTRY_NAME}}.azurecr.io/${{env.CONTAINER_NAME}}
+          # Container registry username
+          container-registry-username: '${{ secrets.REGISTRY_USERNAME }}'
+          # Container registry password
+          container-registry-password:  '${{ secrets.REGISTRY_PASSWORD }}'
+          # Type of Kubernetes secret. For example, docker-registry or generic
+          secret-type: docker-registry
+          # Name of the secret. You can use this secret name in the Kubernetes YAML configuration file.
+          secret-name: acr-image-pull-secret
+
+      # Deploy to k8s cluster
+      - name: Deploy to Kubernetes cluster
+        uses: Azure/k8s-deploy@v4
+        with: 
+          # deploy/promote/reject
+          action: deploy       
+          # Path to the manifest files which will be used for deployment.
+          manifests: |
+              ${{ env.DEPLOYMENT_MANIFEST_PATH }}
+          # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+          # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
+          imagepullsecrets: |
+            acr-image-pull-secret
+          
+         

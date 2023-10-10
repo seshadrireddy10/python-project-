@@ -1,0 +1,113 @@
+#this pipeline is for python API on Azure Kubernetes Services
+
+
+name: Build CI
+
+on:  workflow_dispatch
+
+# Below environment variables available to all jobs and steps in this workflow
+env:
+  ARTIFACTORY_URL: https://dkregistry.jfrog.io/artifactory/docker/
+  ARTIFACTORY_NAME: dkregistry
+  ARTIFACTORY_USERNAME: saidinkargedela97@gmail.com
+  CONTAINER_NAME: myimage
+  CLUSTER_NAME: my-aks-cluster
+  CLUSTER_RESOURCE_GROUP: dinkar-rg
+  NAMESPACE: default
+  DEPLOYMENT_MANIFEST_PATH: |
+        manifests/deployment.yaml
+        manifests/service.yaml
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@master
+
+      # Connecting to Jfrog Artifactory
+    - name: Jfrog Artifactory Login
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ env.ARTIFACTORY_NAME }}.jfrog.io
+        username: ${{ secrets.ARTIFACTORY_USERNAME }} 
+        password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+    
+    # Docker container build 
+    - name: Docker Build
+      run: |
+        echo '<-----------------------Docker build started----------------------->'
+        docker build . -t dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }}        
+        echo '<------------------------Docker build Ended------------------------>'
+   
+    # Docker Container Push to ACR
+    - name: Docker Push
+      run: |
+        echo '<-----------------------Docker Publish started----------------------->'
+        docker push dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }}
+        echo '<------------------------Docker Publish Ended------------------------>'
+
+  Deploy:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+
+    runs-on: ubuntu-latest
+
+    # Delpoy job won't run until build job is completed
+    needs: [build] 
+
+    steps:
+      # Checks out the repository this file is in
+      - uses: actions/checkout@v3
+      
+      - name: Azure Kubernetes set context
+        uses: Azure/aks-set-context@v1
+        with:
+          # Azure credentials i.e. output of 
+          creds: '${{secrets.AZURE_CREDENTIALS}}'
+          # Resource Group Name
+          resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+          # AKS Cluster Name
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          
+
+      # Use kubelogin to configure your kubeconfig for Azure auth
+      - name: Set up kubelogin for non-interactive login
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: 'v0.0.25'
+
+      # Create K8s secrets to pull images
+      - name: Create secret in Kubernetes cluster
+        uses: Azure/k8s-create-secret@v1.1
+        with:
+          # Container registry URL
+          container-registry-url: ${{env.ARTIFACTORY_URL}}
+          # Container registry username
+          container-registry-username: '${{ secrets.ARTIFACTORY_USERNAME }}'
+          # Container registry password
+          container-registry-password:  '${{ secrets.ARTIFACTORY_PASSWORD }}'
+          # Type of Kubernetes secret. For example, docker-registry or generic
+          secret-type: docker-registry
+          # Name of the secret. You can use this secret name in the Kubernetes YAML configuration file.
+          secret-name: jfrog-image-pull-secret
+
+      # Deploy to k8s cluster
+      - name: Deploy to Kubernetes cluster
+        uses: Azure/k8s-deploy@v4
+        with: 
+          # deploy/promote/reject
+          action: deploy       
+          # Path to the manifest files which will be used for deployment.
+          manifests: |
+              ${{ env.DEPLOYMENT_MANIFEST_PATH }}
+          # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
+          images: |
+            dkregistry.jfrog.io/docker/mytestimage:${{ github.sha }}
+          # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
+          imagepullsecrets: |
+            acr-image-pull-secret
+

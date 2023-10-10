@@ -1,0 +1,11 @@
+# Global Owners
+* @dinkar
+
+# dockerfiles
+dockerfiles/** @dinkar
+
+# e2e tests
+tests/e2e/**  @dinkar 
+
+# devworkspace happy path test
+tests/devworkspace-happy-path/** 
